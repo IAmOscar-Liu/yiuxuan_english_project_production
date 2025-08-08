@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "gen-env": "gen-env-types .env -o api/env.d.ts -e .",
-    "dev": "NODE_ENV=development nodemon api/index.ts",
+    "gen-env": "gen-env-types .env -o src/env.d.ts -e .",
+    "dev": "NODE_ENV=development nodemon src/index.ts",
     "build": "tsc",
     "start": "node public/index.js",
     "start:dev": "NODE_ENV=development node public/index.js",
-    "create-rich-menu": "ts-node api/createRichMenu.ts",
-    "manual-link-rich-menu": "ts-node api/manualLinkRichMenu.ts"
+    "create-rich-menu": "ts-node src/createRichMenu.ts",
+    "manual-link-rich-menu": "ts-node src/manualLinkRichMenu.ts"
   },
   "keywords": [],
   "author": "",
