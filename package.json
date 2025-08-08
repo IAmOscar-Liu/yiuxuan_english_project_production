@@ -1,0 +1,36 @@
+{
+  "name": "yoshun_english_project_production",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "gen-env": "gen-env-types .env -o api/env.d.ts -e .",
+    "dev": "NODE_ENV=development nodemon api/index.ts",
+    "build": "tsc",
+    "start": "node public/index.js",
+    "start:dev": "NODE_ENV=development node public/index.js",
+    "create-rich-menu": "ts-node api/createRichMenu.ts",
+    "manual-link-rich-menu": "ts-node api/manualLinkRichMenu.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@line/bot-sdk": "^10.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "dotenv-safe": "^9.1.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
+    "openai": "^5.12.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/dotenv-safe": "^8.1.6",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.10",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
