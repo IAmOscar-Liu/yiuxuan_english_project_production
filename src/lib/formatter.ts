@@ -33,9 +33,13 @@ export function formatDateToLocal(date: Date) {
 }
 
 export function formatFirebaseDateTime(date: any) {
-  if (typeof date?.second !== "number") return "N/A";
-  const localString = new Date(date.seconds * 1000).toLocaleString();
-  return convertLocalStringToISOFormat(localString);
+  if (date.seconds == null) return "N/A";
+  try {
+    const localString = new Date(date.seconds * 1000).toLocaleString();
+    return convertLocalStringToISOFormat(localString);
+  } catch (_) {
+    return "N/A";
+  }
 }
 
 export function convertLocalStringToISOFormat(localString: string) {
