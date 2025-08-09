@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "start:dev": "NODE_ENV=development node dist/index.js",
+    "start:pm2": "pm2 start npm --name \"my-app\" -- run start:dev",
     "create-rich-menu": "ts-node src/createRichMenu.ts",
     "manual-link-rich-menu": "ts-node src/manualLinkRichMenu.ts"
   },
