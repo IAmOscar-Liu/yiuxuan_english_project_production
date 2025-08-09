@@ -47,7 +47,7 @@ export function convertLocalStringToISOFormat(localString: string) {
   const [datePart, timePart] = localString.split(", ");
 
   // Split day/month/year
-  const [day, month, year] = datePart.split("/");
+  const [month, day, year] = datePart.split("/");
 
   // Return in YYYY-MM-DD HH:mm:ss
   return `${year}-${month.padStart(2, "0")}-${day.padStart(
