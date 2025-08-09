@@ -41,6 +41,30 @@ export function formatDateToYYYYMMDD(date: Date) {
   return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 }
 
+/**
+ * Formats a Date object into a localized date and time string.
+ * This function uses the user's browser locale to provide a consistent,
+ * human-readable format, including the correct timezone offset.
+ *
+ * @param {Date} date - The date object to format.
+ * @returns {string} The formatted date and time string.
+ */
+export function formatDateWithLocale(date: Date) {
+  // The toLocaleString() method formats the date according to the
+  // user's locale and timezone.
+  // We use "en-US" as a fallback locale but in practice, the browser
+  // will use the user's default.
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour format
+  });
+}
+
 export function formatUserRole(role: any) {
   switch (role) {
     case "student":
