@@ -32,6 +32,26 @@ export function formatDateToLocal(date: Date) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+export function formatFirebaseDateTime(date: any) {
+  if (typeof date?.second !== "number") return "N/A";
+  const localString = new Date(date.seconds * 1000).toLocaleString();
+  return convertLocalStringToISOFormat(localString);
+}
+
+export function convertLocalStringToISOFormat(localString: string) {
+  // Split date and time
+  const [datePart, timePart] = localString.split(", ");
+
+  // Split day/month/year
+  const [day, month, year] = datePart.split("/");
+
+  // Return in YYYY-MM-DD HH:mm:ss
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(
+    2,
+    "0"
+  )} ${timePart}`;
+}
+
 export function formatUserRole(role: any) {
   switch (role) {
     case "student":
