@@ -1,7 +1,7 @@
 import { messagingApi } from "@line/bot-sdk";
 import client from "../lib/client";
+import { formatDateToYYYYMMDD } from "../lib/formatter";
 import { handleTextMessage } from "./textMessage";
-import { formatDateToString } from "../lib/formatter";
 
 function buildLearningSummaryFlexMessage({
   id,
@@ -137,7 +137,7 @@ function buildLearningSummaryFlexMessage({
                   //   ? formatDateToString(updatedAt.toDate())
                   //   : "N/A",
                   text: updatedAt
-                    ? formatDateToString(new Date(updatedAt.seconds * 1000))
+                    ? formatDateToYYYYMMDD(new Date(updatedAt.seconds * 1000))
                     : "N/A",
                   wrap: true,
                   color: "#666666",
