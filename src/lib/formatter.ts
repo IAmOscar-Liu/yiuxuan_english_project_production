@@ -34,26 +34,29 @@ export function formatDateToLocal(date: Date) {
 
 export function formatFirebaseDateTime(date: any) {
   if (date.seconds == null) return "N/A";
-  try {
-    const localString = new Date(date.seconds * 1000).toLocaleString();
-    return convertLocalStringToISOFormat(localString);
-  } catch (_) {
-    return "N/A";
-  }
+  const timestamp = Number(date.seconds * 1000);
+  return convertTimeStampToLocalTimeString(timestamp);
 }
 
-export function convertLocalStringToISOFormat(localString: string) {
-  // Split date and time
-  const [datePart, timePart] = localString.split(", ");
+export function convertTimeStampToLocalTimeString(timestamp: number) {
+  const date = new Date(timestamp); // convert seconds → ms
 
-  // Split day/month/year
-  const [month, day, year] = datePart.split("/");
+  // Create formatter for Asia/Taipei
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: process.env.TIME_ZONE || "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
 
-  // Return in YYYY-MM-DD HH:mm:ss
-  return `${year}-${month.padStart(2, "0")}-${day.padStart(
-    2,
-    "0"
-  )} ${timePart}`;
+  const parts = formatter.formatToParts(date);
+  const lookup = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+
+  return `${lookup.year}-${lookup.month}-${lookup.day} ${lookup.hour}:${lookup.minute}:${lookup.second}`;
 }
 
 export function formatUserRole(role: any) {
