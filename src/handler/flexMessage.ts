@@ -133,8 +133,11 @@ function buildLearningSummaryFlexMessage({
                 },
                 {
                   type: "text",
+                  // text: updatedAt
+                  //   ? formatDateToString(updatedAt.toDate())
+                  //   : "N/A",
                   text: updatedAt
-                    ? formatDateToString(updatedAt.toDate())
+                    ? formatDateToString(new Date(updatedAt.seconds * 1000))
                     : "N/A",
                   wrap: true,
                   color: "#666666",

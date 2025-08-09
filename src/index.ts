@@ -211,6 +211,16 @@ function handleEvent(event: webhook.Event) {
           label: "查看",
         });
       });
+    if (event.message.text === "問題回報")
+      return getUserDocumentById(event.source?.userId ?? "").then((user) => {
+        if (!user || !user.isLoggedIn) return Promise.resolve(null);
+        return handleLiffButtonMessage({
+          replyToken: event.replyToken,
+          liffUrl: process.env.LINE_LIFF_URL! + "/report.html",
+          title: "點此回報您的問題",
+          label: "回報",
+        });
+      });
 
     // handle user click richMenu
     const textMessage = event.message.text;
