@@ -1,6 +1,6 @@
 import { messagingApi } from "@line/bot-sdk";
 import client from "../lib/client";
-import { formatDateToYYYYMMDD, formatDateWithLocale } from "../lib/formatter";
+import { formatDateToLocal } from "../lib/formatter";
 import { handleTextMessage } from "./textMessage";
 
 function buildLearningSummaryFlexMessage({
@@ -134,7 +134,7 @@ function buildLearningSummaryFlexMessage({
                 {
                   type: "text",
                   text: updatedAt
-                    ? formatDateWithLocale(new Date(updatedAt.seconds * 1000))
+                    ? formatDateToLocal(new Date(updatedAt.seconds * 1000))
                     : "N/A",
                   wrap: true,
                   color: "#666666",
