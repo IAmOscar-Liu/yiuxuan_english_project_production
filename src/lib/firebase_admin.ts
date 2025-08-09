@@ -4,7 +4,7 @@ import { OpenAILib } from "./openAI";
 
 // Import your service account key JSON file
 // Ensure the path is correct relative to this file
-const serviceAccount = require("../yoshunengloshproject-firebase-adminsdk-fbsvc-3a90b0a74d.json");
+const serviceAccount = require("../../yoshunengloshproject-firebase-adminsdk-fbsvc-3a90b0a74d.json");
 
 // Initialize the Firebase Admin SDK
 admin.initializeApp({

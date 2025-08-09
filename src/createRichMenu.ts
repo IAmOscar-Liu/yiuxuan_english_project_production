@@ -142,7 +142,7 @@ async function main() {
   });
 
   // Save the rich menu IDs to a JSON file
-  const outputPath = path.join(__dirname, "richMenuIds.json");
+  const outputPath = path.join(__dirname, "../richMenuIds.json");
   fs.writeFileSync(
     outputPath,
     JSON.stringify({ richMenuAId, richMenuBId }, null, 2),
