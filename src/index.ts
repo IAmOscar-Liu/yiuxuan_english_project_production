@@ -28,6 +28,7 @@ import {
   logOutUser,
 } from "./lib/firebase_admin";
 import { formatUserRole } from "./lib/formatter";
+import { isFuzzyMatch } from "./lib/isFuzzyMatch";
 import { OpenAILib } from "./lib/openAI";
 import { readRichMenuBId } from "./lib/readRichMenuId";
 
@@ -250,6 +251,20 @@ function handleEvent(event: webhook.Event) {
               text: "系統正在回覆您的訊息，請稍後......",
             });
           if (user.threadId) {
+            if (isFuzzyMatch(textMessage, "Let's call it a day")) {
+              return handleConfirmMessage({
+                replyToken: event.replyToken,
+                text: "是否結束目前任務？",
+                actions: [
+                  { type: "postback", label: "是", data: "user_cancel_task" },
+                  {
+                    type: "postback",
+                    label: "否",
+                    data: "user_not_cancel_task",
+                  },
+                ],
+              });
+            }
             const openAIResult = await OpenAILib.chat({
               user,
               message: textMessage,
