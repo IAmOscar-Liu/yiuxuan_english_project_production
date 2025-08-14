@@ -380,7 +380,7 @@ function handleEvent(event: webhook.Event) {
             const openAIResult = await OpenAILib.chat({
               user,
               message:
-                "請給我成果回顧，例如學習紀錄，本次亮點、章節進度條、整體評分(0~5)&下一關挑戰引導",
+                "Let's call it a day.\n請給我成果回顧，例如學習紀錄，本次亮點、章節進度條、整體評分(0~5)&下一關挑戰引導",
             });
             if (openAIResult.success) {
               text = openAIResult.data;
