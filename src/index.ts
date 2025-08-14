@@ -14,24 +14,26 @@ import {
   handleLinkRichMenuIdToUser,
   handleUnLinkRichMenuIdToUser,
 } from "./handler/linkRichMenuIdToUser";
+import { handleLearningSummaryMessage } from "./handler/others";
 import {
   handleLearningQuickReply,
-  handleLearningSummaryMessage,
-} from "./handler/others";
+  handleLearningSummaryTargetQuickReply,
+} from "./handler/quickReply";
 import { handleTextMessage } from "./handler/textMessage";
 import {
   addSummaryToChat,
   getChatDocumentById,
   getChatDocumentsByUserId,
   getUserDocumentById,
+  linkStudentToParent,
   logInUser,
   logOutUser,
 } from "./lib/firebase_admin";
 import { formatUserRole } from "./lib/formatter";
 import { isFuzzyMatch } from "./lib/isFuzzyMatch";
 import { OpenAILib } from "./lib/openAI";
-import { readRichMenuBId } from "./lib/readRichMenuId";
 import { limiter } from "./lib/rateLimit";
+import { readRichMenuBId } from "./lib/readRichMenuId";
 
 // create LINE SDK config from env variables
 const lineMiddleware = middleware({
@@ -54,6 +56,30 @@ const corsOptions = {
 app.get("/api/test", (req, res) => {
   res.json({ result: "success" });
 });
+
+app.post(
+  "/api/link-student-to-parent",
+  cors(corsOptions),
+  express.json(),
+  async (req, res) => {
+    // Make the function async
+    const { userId, userName, parentId } = req.body;
+
+    if (!userId || !userName || !parentId) {
+      return res.status(400).send({
+        error: "Missing userId, userName or parentId in request body.",
+      });
+    }
+
+    const result = await linkStudentToParent({ userId, userName, parentId });
+    return res.status(200).send({
+      success: result,
+      message: result
+        ? `Successfully link student ${userId} to parent: ${parentId}`
+        : `Failed to link student ${userId} to parent: ${parentId}`,
+    });
+  }
+);
 
 app.post(
   "/api/push-message",
@@ -196,6 +222,17 @@ function handleEvent(event: webhook.Event) {
       return getUserDocumentById(event.source?.userId ?? "").then(
         async (user) => {
           if (!user || !user.isLoggedIn) return Promise.resolve(null);
+          if (
+            user.role === "parent" &&
+            Array.isArray(user.associated_students) &&
+            user.associated_students.length > 0
+          ) {
+            return handleLearningSummaryTargetQuickReply({
+              replyToken: event.replyToken,
+              userId: user.id,
+              associatedStudents: user.associated_students,
+            });
+          }
           const chatDocs = await getChatDocumentsByUserId(user.id);
           return handleLearningSummaryCarouselMessage({
             replyToken: event.replyToken,
@@ -464,6 +501,26 @@ function handleEvent(event: webhook.Event) {
           return handleLearningSummaryFlexMessage({
             replyToken: event.replyToken,
             data: chatDoc,
+          });
+        }
+      );
+    if (
+      event.postback.data.startsWith("user_request_learning_summary_carousel:")
+    )
+      return getUserDocumentById(event.source?.userId ?? "").then(
+        async (user) => {
+          if (!user || !user.isLoggedIn) return Promise.resolve(null);
+          const payloadString = event.postback.data.replace(
+            "user_request_learning_summary_carousel:",
+            ""
+          );
+          const { id, name } = JSON.parse(payloadString || "{}");
+          if (!id) return Promise.resolve(null);
+          const chatDocs = await getChatDocumentsByUserId(id);
+          return handleLearningSummaryCarouselMessage({
+            replyToken: event.replyToken,
+            chats: chatDocs,
+            userName: name ? `學生-${name}` : undefined,
           });
         }
       );

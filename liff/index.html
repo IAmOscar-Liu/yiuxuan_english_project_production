@@ -79,16 +79,18 @@
           </div>
           <div class="invalid-feedback">請選擇身分</div>
         </div>
-        <div id="parent-extra" class="mb-3 d-none">
-          <label class="form-label">學生邀請碼（可填多組）</label>
-          <div id="invitation-codes-list"></div>
-          <button
-            type="button"
-            class="btn btn-outline-secondary btn-sm mt-2"
-            id="add-invitation-code"
+        <div id="student-extra" class="mb-3 d-none">
+          <label for="parent-invitation-code" class="form-label"
+            >家長邀請碼</label
           >
-            新增邀請碼
-          </button>
+          <input
+            type="text"
+            class="form-control"
+            id="parent-invitation-code"
+            placeholder="請輸入家長邀請碼"
+            required
+          />
+          <div class="invalid-feedback">請輸入有效的家長邀請碼</div>
         </div>
         <button type="submit" class="btn btn-primary w-100">送出註冊</button>
       </form>

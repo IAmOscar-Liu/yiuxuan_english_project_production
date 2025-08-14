@@ -3,7 +3,7 @@ import {
   getDoc,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import { db } from "./firebase.js";
-import { init } from "./liff.js";
+import { initWithSearchParams } from "./liff.js";
 
 let lineIdToken = null;
 
@@ -42,13 +42,13 @@ async function renderAccount(userId) {
               </li>
       `;
 
-    // Conditionally add student_invitation_code if role is 'student'
-    if (currentUser.role === "student" && currentUser.student_invitation_code) {
+    // Conditionally add parent_invitation_code if role is 'parent'
+    if (currentUser.role === "parent" && currentUser.parent_invitation_code) {
       userDetailsHtml += `
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                <strong>學生邀請碼:</strong>
+                <strong>家長邀請碼:</strong>
                 <div class="d-flex align-items-center">
-                  <span id="student-code-display" class="badge bg-info text-dark me-2">${currentUser.student_invitation_code}</span>
+                  <span id="student-code-display" class="badge bg-info text-dark me-2">${currentUser.parent_invitation_code}</span>
                   <button id="copy-code-btn" class="btn btn-outline-secondary btn-sm" type="button">複製</button>
                 </div>
               </li>
@@ -66,12 +66,44 @@ async function renderAccount(userId) {
         </div>
       `;
 
+    // **NEW**: Check for and display associated students for parents
+    if (
+      currentUser.role === "parent" &&
+      Array.isArray(currentUser.associated_students) &&
+      currentUser.associated_students.length > 0
+    ) {
+      let studentsHtml = `
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title text-primary mb-3">學生資訊</h5>
+            <div class="list-group">
+      `;
+
+      currentUser.associated_students.forEach((student) => {
+        studentsHtml += `
+          <a href="./account.html?userId=${
+            student.id
+          }" class="list-group-item list-group-item-action">
+            ${student.name || "未命名學生"}
+          </a>
+        `;
+      });
+
+      studentsHtml += `
+            </div>
+          </div>
+        </div>
+      `;
+      // Append the student info card to the main details
+      userDetailsHtml += studentsHtml;
+    }
+
     // Set the innerHTML of the form to display the user details
     form.innerHTML = userDetailsHtml;
     formTitle.innerText = "我的帳號"; // Ensure the title is set correctly
 
-    // Add copy to clipboard functionality if the student role and code exist
-    if (currentUser.role === "student" && currentUser.student_invitation_code) {
+    // Add copy to clipboard functionality
+    if (currentUser.role === "parent" && currentUser.parent_invitation_code) {
       const copyCodeBtn = document.getElementById("copy-code-btn");
       const studentCodeDisplay = document.getElementById(
         "student-code-display"
@@ -80,16 +112,15 @@ async function renderAccount(userId) {
       if (copyCodeBtn && studentCodeDisplay) {
         copyCodeBtn.addEventListener("click", () => {
           const codeToCopy = studentCodeDisplay.innerText;
-          // Use document.execCommand('copy') as navigator.clipboard.writeText() may not work in iframes
           const tempInput = document.createElement("textarea");
           tempInput.value = codeToCopy;
           document.body.appendChild(tempInput);
           tempInput.select();
           try {
             document.execCommand("copy");
-            copyCodeBtn.innerText = "已複製!"; // Provide feedback
+            copyCodeBtn.innerText = "已複製!";
             setTimeout(() => {
-              copyCodeBtn.innerText = "複製"; // Revert button text after a short delay
+              copyCodeBtn.innerText = "複製";
             }, 1500);
           } catch (err) {
             console.error("Failed to copy text: ", err);
@@ -107,14 +138,23 @@ async function renderAccount(userId) {
 
 // LIFF init and prefill
 (async function () {
-  const initError = await init();
+  let userId;
+  const initError = await initWithSearchParams((urlParams) => {
+    userId = urlParams.get("userId");
+  });
   if (initError) {
     loadingDiv.innerHTML = `<div class='text-danger'>LIFF 初始化失敗 - ${initError}</div>`;
     return;
   }
-  lineIdToken = liff.getDecodedIDToken();
-  // Try to get profile name if available
-  let userId = lineIdToken?.sub || "";
+  if (!userId) {
+    lineIdToken = liff.getDecodedIDToken();
+    userId = lineIdToken?.sub || "";
+  }
+
+  if (!userId) {
+    loadingDiv.innerHTML = `<div class='text-danger'>無法取得使用者 ID。</div>`;
+    return;
+  }
 
   loadingDiv.classList.add("d-none");
   form.classList.remove("d-none");

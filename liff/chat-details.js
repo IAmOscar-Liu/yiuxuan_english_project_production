@@ -15,15 +15,17 @@ const formTitle = document.getElementById("form-title");
  * Renders the task details on the page.
  * @param {string} threadId The ID of the chat thread.
  * @param {object} chatDetail The chat detail document from Firestore.
- * @param {string} userName The display name of the user.
  */
-function renderChatDetail(threadId, chatDetail, userName) {
+async function renderChatDetail(threadId, chatDetail) {
   // Check if chatDetail exists
   if (!chatDetail) {
     detailsDiv.innerHTML = `<div class="alert alert-warning" role="alert">找不到任務 ${threadId} 的詳細資訊。</div>`;
     formTitle.innerText = "任務詳細";
     return;
   }
+
+  const userDetail = await getUserDetail(chatDetail.userId);
+  const userName = userDetail?.name;
 
   // Get the summary data
   const summaryJson = chatDetail.summaryJson;
@@ -199,15 +201,29 @@ async function getChatDetail(threadId) {
   return currentChat;
 }
 
-async function getUserProfile() {
-  try {
-    const profile = await liff.getProfile();
-    return profile.displayName;
-  } catch (err) {
-    console.error("Failed to get LIFF profile:", err);
-    return "用戶";
+async function getUserDetail(userId) {
+  if (!userId) {
+    return null;
   }
+  const userDocRef = doc(db, "user", userId);
+  const userDocSnap = await getDoc(userDocRef);
+
+  let currentUser;
+  if (userDocSnap.exists()) {
+    currentUser = { id: userDocSnap.id, ...userDocSnap.data() };
+  }
+  return currentUser;
 }
+
+// async function getUserProfile() {
+//   try {
+//     const profile = await liff.getProfile();
+//     return profile.displayName;
+//   } catch (err) {
+//     console.error("Failed to get LIFF profile:", err);
+//     return "用戶";
+//   }
+// }
 
 // LIFF init and prefill
 (async function () {
@@ -219,9 +235,9 @@ async function getUserProfile() {
     loadingDiv.innerHTML = `<div class='text-danger'>LIFF 初始化失敗 - ${initError}</div>`;
     return;
   }
-  lineIdToken = liff.getDecodedIDToken();
-  const userId = lineIdToken?.sub || "";
-  const userName = await getUserProfile();
+  // lineIdToken = liff.getDecodedIDToken();
+  // const userId = lineIdToken?.sub || "";
+  // const userName = await getUserProfile();
 
   // The LIFF login is done, now we can hide the loading spinner
   loadingDiv.classList.add("d-none");
@@ -235,5 +251,5 @@ async function getUserProfile() {
 
   // Get the chat detail and render it
   const chatDetail = await getChatDetail(threadId);
-  renderChatDetail(threadId, chatDetail, userName);
+  renderChatDetail(threadId, chatDetail);
 })();

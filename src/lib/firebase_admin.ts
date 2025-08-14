@@ -84,6 +84,65 @@ export async function logOutUser(userId: string) {
   }
 }
 
+export async function linkStudentToParent({
+  userId,
+  userName,
+  parentId,
+}: {
+  userId: string;
+  userName: string;
+  parentId: string;
+}) {
+  try {
+    const db = admin.firestore();
+    const userDocRef = db.collection("user").doc(parentId);
+
+    // Get the current associated_students array (could be null)
+    const userDoc = await userDocRef.get();
+    let associated_students: Array<{ id: string; name: string }> = [];
+    if (userDoc.exists) {
+      const data = userDoc.data();
+      if (Array.isArray(data?.associated_students)) {
+        associated_students = data.associated_students;
+      }
+    }
+
+    // Check if userId already exists
+    const existingIndex = associated_students.findIndex(
+      (student) => student.id === userId
+    );
+    if (existingIndex !== -1) {
+      // Update the student's name if already linked
+      if (associated_students[existingIndex].name !== userName) {
+        associated_students[existingIndex].name = userName;
+        await userDocRef.set({ associated_students }, { merge: true });
+        console.log(
+          `Updated name for student ${userId} linked to parent: ${parentId}`
+        );
+      } else {
+        console.log(
+          `Student ${userId} is already linked to parent: ${parentId}`
+        );
+      }
+      return true;
+    }
+
+    // Add the new student
+    associated_students.push({ id: userId, name: userName });
+
+    await userDocRef.set({ associated_students }, { merge: true });
+    console.log(`Link student ${userId} to parent: ${parentId}`);
+    return true;
+  } catch (error) {
+    console.error(
+      `Error Link student ${userId} to parent: ${parentId}:`,
+      error
+    );
+    // throw error;
+    return false;
+  }
+}
+
 export async function setThreadOrRunId(
   userId: string,
   options: { threadId?: string; runId?: string }

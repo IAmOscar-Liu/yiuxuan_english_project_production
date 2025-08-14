@@ -34,10 +34,14 @@
       <div id="chat-list" class="d-none">
         <h2 id="page-title" class="mb-4 text-center">我的任務列表</h2>
 
-        <!-- Filter Controls -->
         <div class="mb-4 card shadow-sm p-3">
-          <h6 class="card-title">篩選</h6>
+          <h6 class="card-title">篩選條件</h6>
           <div class="row g-2 align-items-end">
+            <div class="col-md-4 d-none" id="target-filter-container">
+              <label for="target-select" class="form-label">對象</label>
+              <select id="target-select" class="form-select"></select>
+            </div>
+
             <div class="col-md-4">
               <label for="filter-select" class="form-label">選擇時間範圍</label>
               <select id="filter-select" class="form-select">
@@ -62,9 +66,7 @@
           </div>
         </div>
 
-        <div id="chat-cards-container">
-          <!-- Chat cards will be rendered here -->
-        </div>
+        <div id="chat-cards-container"></div>
       </div>
     </main>
     <script type="module" src="./constants.js" defer></script>

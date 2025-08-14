@@ -5,6 +5,8 @@ import {
   getDocs,
   orderBy,
   Timestamp,
+  doc,
+  getDoc,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import { db } from "./firebase.js";
 import { init } from "./liff.js";
@@ -19,56 +21,47 @@ const filterSelect = document.getElementById("filter-select");
 const dateInputsContainer = document.getElementById("date-inputs-container");
 const startDateInput = document.getElementById("start-date");
 const endDateInput = document.getElementById("end-date");
+const targetFilterContainer = document.getElementById(
+  "target-filter-container"
+);
+const targetSelect = document.getElementById("target-select");
 
 const CHAT_FILTER_STORAGE_KEY = "chatFilterState";
+
+function getStarRating(score) {
+  const roundedScore = Math.round(score);
+  let stars = "";
+  for (let i = 0; i < 5; i++) {
+    stars += i < roundedScore ? "★" : "☆";
+  }
+  return `<div><span style="color: #ffc107;">${stars}</span><span style="color:#ababab; margin-left: 12px">${Number(
+    score
+  ).toFixed(1)}</span></div>`;
+}
 
 /**
  * Renders the list of chats on the page.
  * @param {Array<object>} chats The array of chat documents from Firestore.
- * @param {string} userName The display name of the user.
+ * @param {string} userName The display name of the user whose chats are being shown.
  */
 function renderChatList(chats, userName) {
-  // Function to generate star icons based on score
-  function getStarRating(score) {
-    const roundedScore = Math.round(score);
-    let stars = "";
-    for (let i = 0; i < 5; i++) {
-      if (i < roundedScore) {
-        stars += "★"; // Filled star
-      } else {
-        stars += "☆"; // Empty star
-      }
-    }
-    return `<div>
-      <span style="color: #ffc107;">${stars}</span>
-      <span style="color:#ababab; margin-left: 12px">${Number(score).toFixed(
-        1
-      )}</span>
-    </div>`;
-  }
-
   if (chats.length === 0) {
     chatCardsContainer.innerHTML = `<div class="alert alert-info" role="alert">找不到任何任務記錄。</div>`;
   } else {
-    let chatCardsHtml = "";
-    chats.forEach((chat) => {
-      const summaryJson = chat.summaryJson;
-      const title =
-        summaryJson && summaryJson.topic
-          ? summaryJson.topic
-          : `聊天紀錄 ${chat.id.substring(0, 8)}`;
-      const completedTime = chat.updatedAt
-        ? new Date(chat.updatedAt.seconds * 1000).toLocaleString()
-        : "無";
-      const scoreHtml =
-        summaryJson &&
-        summaryJson.score !== undefined &&
-        summaryJson.score !== null
-          ? getStarRating(summaryJson.score)
-          : "";
-      const detailUrl = `chat-details.html?threadId=${chat.id}`;
+    chatCardsContainer.innerHTML = chats
+      .map((chat) => {
+        const { summaryJson, id, updatedAt } = chat;
+        const title = summaryJson?.topic || `聊天紀錄 ${id.substring(0, 8)}`;
+        const completedTime = updatedAt
+          ? new Date(updatedAt.seconds * 1000).toLocaleString()
+          : "無";
+        const scoreHtml =
+          summaryJson?.score !== undefined && summaryJson?.score !== null
+            ? getStarRating(summaryJson.score)
+            : "";
+        const detailUrl = `chat-details.html?threadId=${id}`;
 
-      chatCardsHtml += `
+        return `
         <a href="${detailUrl}" class="card-link">
           <div class="card shadow-sm mb-3">
             <div class="card-body">
@@ -81,44 +74,40 @@ function renderChatList(chats, userName) {
           </div>
         </a>
       `;
-    });
-    chatCardsContainer.innerHTML = chatCardsHtml;
+      })
+      .join("");
   }
-  pageTitle.innerText = `${userName} 的任務列表`;
+
+  // If the target is "自己" (Myself), display "我的任務列表" (My Task List) for a more natural title.
+  if (userName === "自己") {
+    pageTitle.innerText = "我的任務列表";
+  } else {
+    pageTitle.innerText = `${userName} 的任務列表`;
+  }
 }
 
 async function getChatsByUserId(userId, startDate, endDate) {
-  if (!userId) {
-    return [];
-  }
+  if (!userId) return [];
+  const constraints = [
+    where("userId", "==", userId),
+    where("summaryJson", "!=", null),
+  ];
+  if (startDate)
+    constraints.push(where("updatedAt", ">=", Timestamp.fromDate(startDate)));
+  if (endDate)
+    constraints.push(where("updatedAt", "<=", Timestamp.fromDate(endDate)));
+  constraints.push(orderBy("updatedAt", "desc"));
 
-  let q;
-  if (startDate && endDate) {
-    // Query with date range
-    q = query(
-      collection(db, "chat"),
-      where("userId", "==", userId),
-      where("summaryJson", "!=", null),
-      where("updatedAt", ">=", Timestamp.fromDate(startDate)),
-      where("updatedAt", "<=", Timestamp.fromDate(endDate)),
-      orderBy("updatedAt", "desc")
-    );
-  } else {
-    // Query without a date range
-    q = query(
-      collection(db, "chat"),
-      where("userId", "==", userId),
-      where("summaryJson", "!=", null),
-      orderBy("updatedAt", "desc")
-    );
-  }
-
+  const q = query(collection(db, "chat"), ...constraints);
   const querySnapshot = await getDocs(q);
-  const chats = [];
-  querySnapshot.forEach((doc) => {
-    chats.push({ id: doc.id, ...doc.data() });
-  });
-  return chats;
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+}
+
+async function getUserDoc(userId) {
+  if (!userId) return null;
+  const userDocRef = doc(db, "user", userId);
+  const userDocSnap = await getDoc(userDocRef);
+  return userDocSnap.exists() ? userDocSnap.data() : null;
 }
 
 async function getUserProfile() {
@@ -132,15 +121,15 @@ async function getUserProfile() {
 }
 
 async function fetchAndRenderChats(
-  userId,
-  userName,
+  targetUserId,
+  targetUserName,
   startDate = null,
   endDate = null
 ) {
   loadingDiv.classList.remove("d-none");
   chatListDiv.classList.add("d-none");
-  const chats = await getChatsByUserId(userId, startDate, endDate);
-  renderChatList(chats, userName);
+  const chats = await getChatsByUserId(targetUserId, startDate, endDate);
+  renderChatList(chats, targetUserName);
   loadingDiv.classList.add("d-none");
   chatListDiv.classList.remove("d-none");
 }
@@ -150,6 +139,7 @@ function saveFilterState() {
     filter: filterSelect.value,
     startDate: startDateInput.value,
     endDate: endDateInput.value,
+    target: targetSelect.value,
   };
   sessionStorage.setItem(CHAT_FILTER_STORAGE_KEY, JSON.stringify(state));
 }
@@ -157,23 +147,63 @@ function saveFilterState() {
 function loadFilterState() {
   const cachedState = sessionStorage.getItem(CHAT_FILTER_STORAGE_KEY);
   if (cachedState) {
-    const { filter, startDate, endDate } = JSON.parse(cachedState);
-    filterSelect.value = filter;
-    startDateInput.value = startDate;
-    endDateInput.value = endDate;
-
-    if (filter === "custom") {
-      dateInputsContainer.classList.remove("d-none");
-    } else {
-      dateInputsContainer.classList.add("d-none");
+    const state = JSON.parse(cachedState);
+    filterSelect.value = state.filter || "all";
+    startDateInput.value = state.startDate || "";
+    endDateInput.value = state.endDate || "";
+    if (targetSelect.options.length > 0) {
+      targetSelect.value = state.target || lineIdToken?.sub;
     }
-
-    return { filter, startDate, endDate };
+    dateInputsContainer.classList.toggle("d-none", state.filter !== "custom");
+    return state;
   }
   return null;
 }
 
-// LIFF init and prefill
+function handleFilterChange() {
+  const selectedTimeFilter = filterSelect.value;
+  const selectedTargetId = targetSelect.value;
+  const selectedTargetName =
+    targetSelect.options[targetSelect.selectedIndex]?.text || "用戶";
+  let startDate = null;
+  let endDate = new Date();
+
+  dateInputsContainer.classList.add("d-none");
+
+  switch (selectedTimeFilter) {
+    case "last-week":
+      startDate = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate() - 7
+      );
+      break;
+    case "last-month":
+      startDate = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth() - 1,
+        endDate.getDate()
+      );
+      break;
+    case "custom":
+      dateInputsContainer.classList.remove("d-none");
+      if (startDateInput.value && endDateInput.value) {
+        startDate = new Date(startDateInput.value);
+        endDate = new Date(endDateInput.value);
+        endDate.setHours(23, 59, 59, 999);
+      } else {
+        return; // Don't fetch if custom range is incomplete
+      }
+      break;
+    default: // 'all'
+      endDate = null;
+      break;
+  }
+
+  fetchAndRenderChats(selectedTargetId, selectedTargetName, startDate, endDate);
+  saveFilterState();
+}
+
 (async function () {
   const initError = await init();
   if (initError) {
@@ -193,102 +223,42 @@ function loadFilterState() {
     return;
   }
 
-  // Load filter state from storage or use defaults
-  const filterState = loadFilterState();
-  let startDate = null;
-  let endDate = null;
+  const userDoc = await getUserDoc(userId);
+  let initialTargetId = userId;
+  let initialTargetName = userName;
 
-  if (filterState) {
-    if (filterState.filter === "last-week") {
-      const now = new Date();
-      startDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - 7
-      );
-      endDate = now;
-    } else if (filterState.filter === "last-month") {
-      const now = new Date();
-      startDate = new Date(
-        now.getFullYear(),
-        now.getMonth() - 1,
-        now.getDate()
-      );
-      endDate = now;
-    } else if (
-      filterState.filter === "custom" &&
-      filterState.startDate &&
-      filterState.endDate
-    ) {
-      startDate = new Date(filterState.startDate);
-      endDate = new Date(filterState.endDate);
-      endDate.setHours(23, 59, 59, 999);
+  if (userDoc && userDoc.role === "parent") {
+    targetFilterContainer.classList.remove("d-none");
+    let optionsHtml = `<option value="${userId}">自己</option>`;
+    if (userDoc.associated_students && userDoc.associated_students.length > 0) {
+      userDoc.associated_students.forEach((student) => {
+        optionsHtml += `<option value="${student.id}">學生-${student.name}</option>`;
+      });
     }
+    targetSelect.innerHTML = optionsHtml;
   }
 
-  // Initial fetch with either loaded state or no filters
-  await fetchAndRenderChats(userId, userName, startDate, endDate);
+  const filterState = loadFilterState();
+  if (filterState && filterState.target) {
+    initialTargetId = filterState.target;
+    // This logic needs to run *after* targetSelect is populated
+    const selectedOption = Array.from(targetSelect.options).find(
+      (opt) => opt.value === initialTargetId
+    );
+    initialTargetName = selectedOption ? selectedOption.text : userName;
+  }
 
-  // Add event listeners for filters
-  filterSelect.addEventListener("change", (e) => {
-    const value = e.target.value;
-    const now = new Date();
-    let startDate = null;
-    let endDate = now;
+  // For non-parents, ensure the title is correct from the start
+  if (!userDoc || userDoc.role !== "parent") {
+    pageTitle.innerText = "我的任務列表";
+  }
 
-    if (value === "custom") {
-      dateInputsContainer.classList.remove("d-none");
-      if (startDateInput.value && endDateInput.value) {
-        const customStartDate = new Date(startDateInput.value);
-        const customEndDate = new Date(endDateInput.value);
-        customEndDate.setHours(23, 59, 59, 999);
-        fetchAndRenderChats(userId, userName, customStartDate, customEndDate);
-      }
-    } else {
-      dateInputsContainer.classList.add("d-none");
-      if (value === "last-week") {
-        startDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate() - 7
-        );
-        fetchAndRenderChats(userId, userName, startDate, endDate);
-      } else if (value === "last-month") {
-        startDate = new Date(
-          now.getFullYear(),
-          now.getMonth() - 1,
-          now.getDate()
-        );
-        endDate = now;
-        fetchAndRenderChats(userId, userName, startDate, endDate);
-      } else {
-        // 'all'
-        fetchAndRenderChats(userId, userName);
-      }
-    }
-    saveFilterState();
-  });
+  // Add event listeners
+  targetSelect.addEventListener("change", handleFilterChange);
+  filterSelect.addEventListener("change", handleFilterChange);
+  startDateInput.addEventListener("change", handleFilterChange);
+  endDateInput.addEventListener("change", handleFilterChange);
 
-  // Listen for changes on custom date inputs
-  startDateInput.addEventListener("change", () => {
-    if (startDateInput.value && endDateInput.value) {
-      const startDate = new Date(startDateInput.value);
-      const endDate = new Date(endDateInput.value);
-      // Ensure the end date is inclusive by setting time to end of day
-      endDate.setHours(23, 59, 59, 999);
-      fetchAndRenderChats(userId, userName, startDate, endDate);
-      saveFilterState();
-    }
-  });
-
-  endDateInput.addEventListener("change", () => {
-    if (startDateInput.value && endDateInput.value) {
-      const startDate = new Date(startDateInput.value);
-      const endDate = new Date(endDateInput.value);
-      // Ensure the end date is inclusive by setting time to end of day
-      endDate.setHours(23, 59, 59, 999);
-      fetchAndRenderChats(userId, userName, startDate, endDate);
-      saveFilterState();
-    }
-  });
+  // Initial fetch
+  handleFilterChange();
 })();

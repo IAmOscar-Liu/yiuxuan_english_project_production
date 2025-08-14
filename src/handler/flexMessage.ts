@@ -1,7 +1,7 @@
 import { messagingApi } from "@line/bot-sdk";
 import client from "../lib/client";
-import { handleTextMessage } from "./textMessage";
 import { formatFirebaseDateTime } from "../lib/formatter";
+import { handleTextMessage } from "./textMessage";
 
 function buildLearningSummaryFlexMessage({
   id,
@@ -201,27 +201,35 @@ export function handleLearningSummaryFlexMessage({
 export function handleLearningSummaryCarouselMessage({
   replyToken,
   chats,
+  userName,
 }: {
   replyToken?: string;
   chats: {
     [key: string]: any;
   }[];
+  userName?: string;
 }) {
   if (!replyToken) return Promise.resolve(null);
   if (chats.length === 0)
     return handleTextMessage({
       replyToken,
-      text: "您目前沒有學習成果圖卡，趕快開始一個新任務吧！",
+      text: userName
+        ? `${userName}目前沒有學習成果圖卡`
+        : "您目前沒有學習成果圖卡，趕快開始一個新任務吧！",
     });
 
   const echo: messagingApi.Message = {
     type: "text",
-    text: `以下是您近${chats.length}次的學習成果圖卡`,
+    text: userName
+      ? `以下是${userName}近${chats.length}次的學習成果圖卡`
+      : `以下是您近${chats.length}次的學習成果圖卡`,
   };
 
   const message: messagingApi.Message = {
     type: "flex",
-    altText: `以下是您近${chats.length}次的學習成果圖卡`,
+    altText: userName
+      ? `以下是${userName}近${chats.length}次的學習成果圖卡`
+      : `以下是您近${chats.length}次的學習成果圖卡`,
     contents: {
       type: "carousel",
       contents: chats.map(buildLearningSummaryFlexMessage),

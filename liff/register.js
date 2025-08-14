@@ -6,7 +6,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import { db } from "./firebase.js";
 import { init } from "./liff.js";
-import { CALLBACK_URL } from "./constants.js";
 
 const loadingDiv = document.getElementById("loading");
 const form = document.getElementById("register-form");
@@ -14,14 +13,14 @@ const nicknameInput = document.getElementById("nickname");
 const emailInput = document.getElementById("email");
 const roleStudent = document.getElementById("role-student");
 const roleParent = document.getElementById("role-parent");
-const parentExtra = document.getElementById("parent-extra");
-const invitationCodesList = document.getElementById("invitation-codes-list");
-const addInvitationCodeBtn = document.getElementById("add-invitation-code");
+const studentExtra = document.getElementById("student-extra");
+const parentInvitationCodeInput = document.getElementById(
+  "parent-invitation-code"
+);
 const formMessage = document.getElementById("form-message");
 
-let lineProfile = null;
 let lineIdToken = null;
-let generatedStudentCode = null;
+let generatedParentCode = null;
 
 async function getUserById(userId) {
   const q = await getDocs(collection(db, "user"));
@@ -54,42 +53,28 @@ function clearMessage() {
   formMessage.innerHTML = "";
 }
 
-// Add invitation code input
-function addInvitationCodeInput(value = "") {
-  const div = document.createElement("div");
-  div.className = "input-group mb-2 invitation-code-group";
-  div.innerHTML = `
-        <input type="text" class="form-control invitation-code" placeholder="請輸入學生邀請碼" value="${value}">
-        <button class="btn btn-outline-danger remove-invitation-code" type="button">移除</button>
-      `;
-  div.querySelector(".remove-invitation-code").onclick = () => div.remove();
-  invitationCodesList.appendChild(div);
-}
-
-// Show/hide parent extra fields
+// Show/hide fields based on selected role
 function updateRoleFields() {
-  if (roleParent.checked) {
-    parentExtra.classList.remove("d-none");
-  } else {
-    parentExtra.classList.add("d-none");
-    invitationCodesList.innerHTML = "";
-  }
   if (roleStudent.checked) {
-    // Generate code but do NOT show in UI
-    generatedStudentCode = generateCode();
-    const codeRow = document.getElementById("student-code-row");
-    if (codeRow) codeRow.remove();
+    studentExtra.classList.remove("d-none");
+    parentInvitationCodeInput.required = true;
+    generatedParentCode = null;
   } else {
-    const codeRow = document.getElementById("student-code-row");
-    if (codeRow) codeRow.remove();
-    generatedStudentCode = null;
+    studentExtra.classList.add("d-none");
+    parentInvitationCodeInput.required = false;
+    parentInvitationCodeInput.value = "";
+  }
+
+  if (roleParent.checked) {
+    generatedParentCode = generateCode();
+  } else {
+    generatedParentCode = null;
   }
 }
 
 // Event listeners
 roleStudent.addEventListener("change", updateRoleFields);
 roleParent.addEventListener("change", updateRoleFields);
-addInvitationCodeBtn.addEventListener("click", () => addInvitationCodeInput());
 
 // LIFF init and prefill
 (async function () {
@@ -99,7 +84,6 @@ addInvitationCodeBtn.addEventListener("click", () => addInvitationCodeInput());
     return;
   }
   lineIdToken = liff.getDecodedIDToken();
-  // Try to get profile name if available
   let userId = lineIdToken?.sub || "";
   let name = lineIdToken?.name || "";
   let email = lineIdToken?.email || "";
@@ -124,6 +108,7 @@ form.addEventListener("submit", async (e) => {
   clearMessage();
   form.classList.add("was-validated");
   if (!form.checkValidity()) return;
+
   const role = roleStudent.checked
     ? "student"
     : roleParent.checked
@@ -131,41 +116,32 @@ form.addEventListener("submit", async (e) => {
     : "";
   const nickName = nicknameInput.value.trim();
   const email = emailInput.value.trim();
-  let studentInvitationCodes = [];
-  if (role === "parent") {
-    studentInvitationCodes = Array.from(
-      invitationCodesList.querySelectorAll(".invitation-code")
-    )
-      .map((input) => input.value.trim())
-      .filter((v) => v);
-    // Validate all codes exist in user collection
-    if (studentInvitationCodes.length > 0) {
-      let invalidCodes = [];
-      for (let code of studentInvitationCodes) {
-        const q = await getDocs(collection(db, "user"));
-        let found = false;
-        q.forEach((doc) => {
-          const data = doc.data();
-          // if (
-          //   Array.isArray(data.student_invitation_code) &&
-          //   data.student_invitation_code.includes(code)
-          // )
-          //   found = true;
-          if (
-            data.role === "student" &&
-            typeof data.student_invitation_code === "string" &&
-            data.student_invitation_code === code
-          )
-            found = true;
-        });
-        if (!found) invalidCodes.push(code);
+  let parentInvitationCode = null;
+  let parentId = null;
+
+  // If student, validate the parent invitation code
+  if (role === "student") {
+    const codeToValidate = parentInvitationCodeInput.value.trim();
+    let isCodeValid = false;
+    const q = await getDocs(collection(db, "user"));
+    q.forEach((doc) => {
+      const data = doc.data();
+      if (
+        data.role === "parent" &&
+        data.parent_invitation_code === codeToValidate
+      ) {
+        isCodeValid = true;
+        parentId = doc.id;
       }
-      if (invalidCodes.length > 0) {
-        showMessage(`以下邀請碼無效：${invalidCodes.join(", ")}`);
-        return;
-      }
+    });
+
+    if (!isCodeValid) {
+      showMessage(`此家長邀請碼無效：${codeToValidate}`);
+      return;
     }
+    parentInvitationCode = codeToValidate;
   }
+
   // Prepare user doc
   const userDoc = {
     id: lineIdToken?.sub || "",
@@ -174,35 +150,37 @@ form.addEventListener("submit", async (e) => {
     nickName,
     email,
     role,
-    student_invitation_code:
-      role === "student" ? generatedStudentCode : studentInvitationCodes,
+    parent_invitation_code:
+      role === "parent" ? generatedParentCode : parentInvitationCode,
     createdAt: new Date().toISOString(),
   };
+
   try {
-    // Use setDoc with line sub as doc id
     await setDoc(doc(db, "user", userDoc.id), userDoc);
     showMessage("恭喜您，帳號已建立，請點擊『我的身份』再次登入！", "success");
 
-    fetch(CALLBACK_URL, {
+    fetch("/api/push-message", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: userDoc.id,
         message: "恭喜您，帳號已建立，請點擊主選單『我的身份』再次登入！",
       }),
     }).catch((e) => console.error(e));
-    console.log("Callback URL notified successfully.");
 
-    // 發送訊息並關閉
+    if (userDoc.role === "student") {
+      fetch("/api/link-student-to-parent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: userDoc.id,
+          userName: userDoc.name,
+          parentId,
+        }),
+      }).catch((e) => console.error(e));
+    }
+
     if (liff.isInClient()) {
-      // await liff.sendMessages([
-      //   {
-      //     type: "text",
-      //     text: "恭喜您，帳號已建立，請點擊『我的身份』再次登入！",
-      //   },
-      // ]);
       setTimeout(() => liff.closeWindow(), 1000);
     } else {
       setTimeout(() => window.close(), 1500);
