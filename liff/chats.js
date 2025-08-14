@@ -12,6 +12,7 @@ import { db } from "./firebase.js";
 import { init } from "./liff.js";
 
 let lineIdToken = null;
+let currentUserDoc = null; // Make user document available to the whole module
 
 const loadingDiv = document.getElementById("loading");
 const chatListDiv = document.getElementById("chat-list");
@@ -39,11 +40,6 @@ function getStarRating(score) {
   ).toFixed(1)}</span></div>`;
 }
 
-/**
- * Renders the list of chats on the page.
- * @param {Array<object>} chats The array of chat documents from Firestore.
- * @param {string} userName The display name of the user whose chats are being shown.
- */
 function renderChatList(chats, userName) {
   if (chats.length === 0) {
     chatCardsContainer.innerHTML = `<div class="alert alert-info" role="alert">找不到任何任務記錄。</div>`;
@@ -78,7 +74,6 @@ function renderChatList(chats, userName) {
       .join("");
   }
 
-  // If the target is "自己" (Myself), display "我的任務列表" (My Task List) for a more natural title.
   if (userName === "自己") {
     pageTitle.innerText = "我的任務列表";
   } else {
@@ -162,9 +157,21 @@ function loadFilterState() {
 
 function handleFilterChange() {
   const selectedTimeFilter = filterSelect.value;
-  const selectedTargetId = targetSelect.value;
-  const selectedTargetName =
-    targetSelect.options[targetSelect.selectedIndex]?.text || "用戶";
+  let selectedTargetId;
+  let selectedTargetName;
+
+  // **FIX**: Check the user's role to determine where to get the target ID from.
+  if (currentUserDoc && currentUserDoc.role === "parent") {
+    // For parents, get the target from the dropdown selection.
+    selectedTargetId = targetSelect.value;
+    selectedTargetName =
+      targetSelect.options[targetSelect.selectedIndex]?.text || "用戶";
+  } else {
+    // For students, the target is always themselves.
+    selectedTargetId = lineIdToken?.sub;
+    selectedTargetName = "自己"; // Use "自己" to trigger the correct title in renderChatList
+  }
+
   let startDate = null;
   let endDate = new Date();
 
@@ -192,10 +199,10 @@ function handleFilterChange() {
         endDate = new Date(endDateInput.value);
         endDate.setHours(23, 59, 59, 999);
       } else {
-        return; // Don't fetch if custom range is incomplete
+        return;
       }
       break;
-    default: // 'all'
+    default:
       endDate = null;
       break;
   }
@@ -223,15 +230,17 @@ function handleFilterChange() {
     return;
   }
 
-  const userDoc = await getUserDoc(userId);
-  let initialTargetId = userId;
-  let initialTargetName = userName;
+  // **FIX**: Store the user document in the module-scoped variable
+  currentUserDoc = await getUserDoc(userId);
 
-  if (userDoc && userDoc.role === "parent") {
+  if (currentUserDoc && currentUserDoc.role === "parent") {
     targetFilterContainer.classList.remove("d-none");
     let optionsHtml = `<option value="${userId}">自己</option>`;
-    if (userDoc.associated_students && userDoc.associated_students.length > 0) {
-      userDoc.associated_students.forEach((student) => {
+    if (
+      currentUserDoc.associated_students &&
+      currentUserDoc.associated_students.length > 0
+    ) {
+      currentUserDoc.associated_students.forEach((student) => {
         optionsHtml += `<option value="${student.id}">學生-${student.name}</option>`;
       });
     }
@@ -240,25 +249,19 @@ function handleFilterChange() {
 
   const filterState = loadFilterState();
   if (filterState && filterState.target) {
-    initialTargetId = filterState.target;
-    // This logic needs to run *after* targetSelect is populated
     const selectedOption = Array.from(targetSelect.options).find(
-      (opt) => opt.value === initialTargetId
+      (opt) => opt.value === filterState.target
     );
-    initialTargetName = selectedOption ? selectedOption.text : userName;
   }
 
-  // For non-parents, ensure the title is correct from the start
-  if (!userDoc || userDoc.role !== "parent") {
+  if (!currentUserDoc || currentUserDoc.role !== "parent") {
     pageTitle.innerText = "我的任務列表";
   }
 
-  // Add event listeners
   targetSelect.addEventListener("change", handleFilterChange);
   filterSelect.addEventListener("change", handleFilterChange);
   startDateInput.addEventListener("change", handleFilterChange);
   endDateInput.addEventListener("change", handleFilterChange);
 
-  // Initial fetch
   handleFilterChange();
 })();
