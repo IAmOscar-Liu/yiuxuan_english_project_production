@@ -27,6 +27,7 @@ export class OpenAILib {
     shouldCreateChat?: boolean;
     shouldSaveConversation?: boolean;
   }): Promise<OpenAIResult> {
+    await setThreadOrRunId(params.user.id, { runId: "creating" });
     return new OpenAILib()._chat(params).then((result) => {
       if (result.threadId && params.shouldSaveConversation) {
         insertConversationToChat(result.threadId, {
