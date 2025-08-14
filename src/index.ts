@@ -31,6 +31,7 @@ import { formatUserRole } from "./lib/formatter";
 import { isFuzzyMatch } from "./lib/isFuzzyMatch";
 import { OpenAILib } from "./lib/openAI";
 import { readRichMenuBId } from "./lib/readRichMenuId";
+import { limiter } from "./lib/rateLimit";
 
 // create LINE SDK config from env variables
 const lineMiddleware = middleware({
@@ -245,7 +246,7 @@ function handleEvent(event: webhook.Event) {
     return getUserDocumentById(event.source?.userId ?? "").then(
       async (user) => {
         if (user && user.isLoggedIn) {
-          if (user.runId)
+          if (user.runId || !limiter.canExecute(user.id))
             return handleTextMessage({
               replyToken: event.replyToken,
               text: "系統正在回覆您的訊息，請稍後......",
@@ -385,7 +386,7 @@ function handleEvent(event: webhook.Event) {
               replyToken: event.replyToken,
               text: "任務已結束",
             });
-          if (user.runId)
+          if (user.runId || !limiter.canExecute(user.id))
             return handleTextMessage({
               replyToken: event.replyToken,
               text: "系統正在回覆您的訊息，請稍後......",

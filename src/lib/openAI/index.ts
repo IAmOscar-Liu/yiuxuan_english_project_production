@@ -5,6 +5,7 @@ import {
   insertConversationToChat,
   setThreadOrRunId,
 } from "../firebase_admin";
+import { limiter } from "../rateLimit";
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
@@ -27,9 +28,10 @@ export class OpenAILib {
     shouldCreateChat?: boolean;
     shouldSaveConversation?: boolean;
   }): Promise<OpenAIResult> {
-    await setThreadOrRunId(params.user.id, { runId: "creating" });
+    limiter.execute(params.user.id);
     return new OpenAILib()._chat(params).then((result) => {
       if (result.threadId && params.shouldSaveConversation) {
+        limiter.finish(params.user.id);
         insertConversationToChat(result.threadId, {
           role: "assistant",
           text: result.success
@@ -117,6 +119,7 @@ export class OpenAILib {
       });
       // userRuns[userId] = run.id;
       await setThreadOrRunId(userId, { runId: run.id });
+      limiter.finish(userId);
 
       // Set up a 60s timeout to cancel the run if it takes too long
       timeoutHandle = setTimeout(async () => {
