@@ -8,13 +8,13 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-s
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyABy-Wm-fbi-fMVHqpdb0opw-Xjw1cgYD8",
-  authDomain: "test-project-001-5703b.firebaseapp.com",
-  databaseURL: "https://test-project-001-5703b-default-rtdb.firebaseio.com",
-  projectId: "test-project-001-5703b",
-  storageBucket: "test-project-001-5703b.firebasestorage.app",
-  messagingSenderId: "741078952479",
-  appId: "1:741078952479:web:bd32c7e645dca8c8b1c32a",
+  apiKey: "AIzaSyAkGB3Cmw8MVaxjjcD9dGEAhrIdqtDVZHE",
+  authDomain: "yoshunengloshproject.firebaseapp.com",
+  projectId: "yoshunengloshproject",
+  storageBucket: "yoshunengloshproject.firebasestorage.app",
+  messagingSenderId: "980913645492",
+  appId: "1:980913645492:web:51a87b648bfef89e3ab4e1",
+  measurementId: "G-5XV4VF9C2X",
 };
 
 // Initialize Firebase
