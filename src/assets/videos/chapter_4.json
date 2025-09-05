@@ -1,0 +1,47 @@
+{
+  "name": "chapter_4",
+  "title": "Introduction to Present Continuous Tense",
+  "description": "This chapter explains the present continuous tense and how it is used to describe actions happening right now.",
+  "questions": [
+    {
+      "question": "Which sentence is in the present continuous tense?",
+      "options": {
+        "A": "She is reading a book now.",
+        "B": "She reads a book every day.",
+        "C": "She read a book yesterday.",
+        "D": "She will read a book tomorrow."
+      },
+      "answer": "A"
+    },
+    {
+      "question": "Which of the following is correct in present continuous tense?",
+      "options": {
+        "A": "He goes to school now.",
+        "B": "He went to school now.",
+        "C": "He is going to school now.",
+        "D": "He will go to school now."
+      },
+      "answer": "C"
+    },
+    {
+      "question": "When do we use the present continuous tense?",
+      "options": {
+        "A": "To describe actions happening right now.",
+        "B": "To describe past actions.",
+        "C": "To describe future actions.",
+        "D": "To describe habitual actions."
+      },
+      "answer": "A"
+    },
+    {
+      "question": "Choose the correct sentence in present continuous tense.",
+      "options": {
+        "A": "They play football now.",
+        "B": "They are playing football now.",
+        "C": "They played football now.",
+        "D": "They will play football now."
+      },
+      "answer": "B"
+    }
+  ]
+}

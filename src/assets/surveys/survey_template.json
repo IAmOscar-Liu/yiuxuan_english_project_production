@@ -1,0 +1,246 @@
+{
+  "title": "壹、基本資料",
+  "questions": [
+    {
+      "id": 1,
+      "text": "性別",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "男"
+        },
+        {
+          "id": 2,
+          "label": "女"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": 2,
+      "text": "年級",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "國一"
+        },
+        {
+          "id": 2,
+          "label": "國二"
+        },
+        {
+          "id": 3,
+          "label": "國三"
+        },
+        {
+          "id": 4,
+          "label": "高一"
+        },
+        {
+          "id": 5,
+          "label": "高二"
+        },
+        {
+          "id": 6,
+          "label": "高三"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": 3,
+      "text": "個人教育期望：個人期望未來最高學歷為",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "國中"
+        },
+        {
+          "id": 2,
+          "label": "高中(職)"
+        },
+        {
+          "id": 3,
+          "label": "專科"
+        },
+        {
+          "id": 4,
+          "label": "大學（學院）"
+        },
+        {
+          "id": 5,
+          "label": "碩士"
+        },
+        {
+          "id": 6,
+          "label": "博士"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": 4,
+      "text": "父親教育程度",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "國小(含以下)畢"
+        },
+        {
+          "id": 2,
+          "label": "國中"
+        },
+        {
+          "id": 3,
+          "label": "高中(職)"
+        },
+        {
+          "id": 4,
+          "label": "專科"
+        },
+        {
+          "id": 5,
+          "label": "大學"
+        },
+        {
+          "id": 6,
+          "label": "碩士"
+        },
+        {
+          "id": 7,
+          "label": "博士"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": 5,
+      "text": "母親教育程度",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "國小(含以下)畢"
+        },
+        {
+          "id": 2,
+          "label": "國中"
+        },
+        {
+          "id": 3,
+          "label": "高中(職)"
+        },
+        {
+          "id": 4,
+          "label": "專科"
+        },
+        {
+          "id": 5,
+          "label": "大學"
+        },
+        {
+          "id": 6,
+          "label": "碩士"
+        },
+        {
+          "id": 7,
+          "label": "博士"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": 6,
+      "text": "家庭平均月收入",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "不到2萬"
+        },
+        {
+          "id": 2,
+          "label": "2~5萬（不含5萬）"
+        },
+        {
+          "id": 3,
+          "label": "5~10萬（不含10萬）"
+        },
+        {
+          "id": 4,
+          "label": "10~15萬（不含15萬）"
+        },
+        {
+          "id": 5,
+          "label": "15~20萬（不含20萬）"
+        },
+        {
+          "id": 6,
+          "label": "20萬以上"
+        }
+      ],
+      "answer": null
+    },
+    {
+      "id": 7,
+      "text": "家庭狀況",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "父母同住"
+        },
+        {
+          "id": 2,
+          "label": "父母離婚/分居"
+        },
+        {
+          "id": 3,
+          "label": "因父/母任一方去世"
+        },
+        {
+          "id": 4,
+          "label": "隔代教養"
+        },
+        {
+          "id": 5,
+          "label": "寄居"
+        },
+        {
+          "id": 6,
+          "label": "其他"
+        }
+      ],
+      "answer": null,
+      "otherText": null
+    },
+    {
+      "id": 8,
+      "text": "師生關係：一般而言，我和老師的互動關係是",
+      "type": "single-choice",
+      "options": [
+        {
+          "id": 1,
+          "label": "優良"
+        },
+        {
+          "id": 2,
+          "label": "尚可"
+        },
+        {
+          "id": 3,
+          "label": "不佳"
+        },
+        {
+          "id": 4,
+          "label": "惡劣"
+        }
+      ],
+      "answer": null
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "title": "貳、正式量表內容",
+  "scale": "likert-5",
+  "rating_options": [
+    {
+      "value": 5,
+      "label": "非常符合"
+    },
+    {
+      "value": 4,
+      "label": "大部分符合"
+    },
+    {
+      "value": 3,
+      "label": "無意見"
+    },
+    {
+      "value": 2,
+      "label": "大部分不符合"
+    },
+    {
+      "value": 1,
+      "label": "非常不符合"
+    }
+  ],
+  "sections": [
+    {
+      "section": "A",
+      "name": "一般個人特質面向（路徑/意志力自我覺知）",
+      "description": "是指個人在路徑與意志力等兩方面自我覺知的狀態，共6題。",
+      "questions": [
+        {
+          "code": "a1",
+          "facet": "路徑",
+          "text": "任何問題都有處理的方法。",
+          "answer": null
+        },
+        {
+          "code": "a2",
+          "facet": "路徑",
+          "text": "生活中許多重要事情，我都能想到完成的方法。",
+          "answer": null
+        },
+        {
+          "code": "a3",
+          "facet": "路徑",
+          "text": "即使其他人都放棄，我仍然相信我會找到解決問題的方法。",
+          "answer": null
+        },
+        {
+          "code": "a4",
+          "facet": "路徑",
+          "text": "即使問題的難度很高，我仍然會想到解決問題的方法。",
+          "answer": null
+        },
+        {
+          "code": "a5",
+          "facet": "意志力",
+          "text": "不論過往成敗經驗，我準備好面對未來生活挑戰。",
+          "answer": null
+        },
+        {
+          "code": "a6",
+          "facet": "意志力",
+          "text": "當我遇到困難時，我會充滿信心堅持到底克服它們。",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "section": "B",
+      "name": "特定目標面向 1. 家庭生活部分",
+      "description": "是指您對家人之間互動關係與親情品質的看法與感受，共8題。",
+      "questions": [
+        {
+          "code": "b1",
+          "facet": "路徑",
+          "text": "我能與家人分享許多事情。",
+          "answer": null
+        },
+        {
+          "code": "b2",
+          "facet": "路徑",
+          "text": "我努力協助家事，以增進良好家庭關係。",
+          "answer": null
+        },
+        {
+          "code": "b3",
+          "facet": "路徑",
+          "text": "我會想辦法讓家人一起開心的參與活動。",
+          "answer": null
+        },
+        {
+          "code": "b4",
+          "facet": "意志力",
+          "text": "我很滿意自己的家庭生活。",
+          "answer": null
+        },
+        {
+          "code": "b5",
+          "facet": "路徑",
+          "text": "即使家人意見不同，我們也能找到解決問題的方法。",
+          "answer": null
+        },
+        {
+          "code": "b6",
+          "facet": "意志力",
+          "text": "我和家人的關係良好。",
+          "answer": null
+        },
+        {
+          "code": "b7",
+          "facet": "路徑",
+          "text": "我與家人溝通情感的管道很多。",
+          "answer": null
+        },
+        {
+          "code": "b8",
+          "facet": "意志力",
+          "text": "和家人的良好互動經驗，使我對未來的家庭生活具有美好的憧憬。",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "section": "C",
+      "name": "特定目標面向 2. 課業學習部分",
+      "description": "是指您自己對學校的學科成績、功課與作業表現的看法與感受，共計8題。",
+      "questions": [
+        {
+          "code": "c1",
+          "facet": "路徑",
+          "text": "我能想到獲得令人滿意成績的方法。",
+          "answer": null
+        },
+        {
+          "code": "c2",
+          "facet": "意志力",
+          "text": "我認真學習學校的課業。",
+          "answer": null
+        },
+        {
+          "code": "c3",
+          "facet": "路徑",
+          "text": "我有許多方法可以面對課業的挑戰。",
+          "answer": null
+        },
+        {
+          "code": "c4",
+          "facet": "路徑",
+          "text": "即使是功課很難，我也能想辦法完成。",
+          "answer": null
+        },
+        {
+          "code": "c5",
+          "facet": "路徑",
+          "text": "我為自己設定了明確的學習目標。",
+          "answer": null
+        },
+        {
+          "code": "c6",
+          "facet": "意志力",
+          "text": "我會嘗試在重要的功課或科目取得令人滿意的成績。",
+          "answer": null
+        },
+        {
+          "code": "c7",
+          "facet": "意志力",
+          "text": "我過去的努力學習，足以讓我表現更好。",
+          "answer": null
+        },
+        {
+          "code": "c8",
+          "facet": "意志力",
+          "text": "在課堂上，我會努力學習以得到我想要的成績或分數。",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "section": "D",
+      "name": "特定目標面向 3. 同儕關係部分",
+      "description": "是指您自己對學校同學的互動關係、朋友之間的人際關係的看法與感受，共7題。",
+      "questions": [
+        {
+          "code": "d1",
+          "facet": "意志力",
+          "text": "我會積極尋求同學或朋友的支持，發展重要人際關係。",
+          "answer": null
+        },
+        {
+          "code": "d2",
+          "facet": "路徑",
+          "text": "我有許多爭取友誼支持的方法。",
+          "answer": null
+        },
+        {
+          "code": "d3",
+          "facet": "路徑",
+          "text": "我會設法融入我認為重要的團體，並成為團體的一分子。",
+          "answer": null
+        },
+        {
+          "code": "d4",
+          "facet": "意志力",
+          "text": "我努力維持自己的人際關係不錯。",
+          "answer": null
+        },
+        {
+          "code": "d5",
+          "facet": "意志力",
+          "text": "即使有人很難相處，我仍可以與他相處融洽。",
+          "answer": null
+        },
+        {
+          "code": "d6",
+          "facet": "意志力",
+          "text": "我過去與同學或朋友相處的愉快經驗，讓我在待人處世方面更具自信與能力。",
+          "answer": null
+        },
+        {
+          "code": "d7",
+          "facet": "路徑",
+          "text": "當我想與某人做朋友，通常我能找到成功的方法。",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "section": "E",
+      "name": "特定目標面向 4. 休閒活動部分",
+      "description": "是指您個人能否找出所喜愛的休閒活動，以及能否投入在休閒活動的過程中，共7題。",
+      "questions": [
+        {
+          "code": "e1",
+          "facet": "路徑",
+          "text": "在閒暇時刻，我有許多愉快的活動。",
+          "answer": null
+        },
+        {
+          "code": "e2",
+          "facet": "意志力",
+          "text": "我熱衷於各種休閒活動。",
+          "answer": null
+        },
+        {
+          "code": "e3",
+          "facet": "意志力",
+          "text": "當我擬定規劃的休閒活動無法進行時，我仍能找到其他讓我高興的事情。",
+          "answer": null
+        },
+        {
+          "code": "e4",
+          "facet": "路徑",
+          "text": "為了進行重要的休閒活動，我會想辦法挪出時間。",
+          "answer": null
+        },
+        {
+          "code": "e5",
+          "facet": "意志力",
+          "text": "我過去的興趣與休閒活動的經驗，對於未來相當重要。",
+          "answer": null
+        },
+        {
+          "code": "e6",
+          "facet": "路徑",
+          "text": "我能妥善的規劃自己的休閒活動。",
+          "answer": null
+        },
+        {
+          "code": "e7",
+          "facet": "路徑",
+          "text": "我會為我自己設定一些休閒活動的目標。",
+          "answer": null
+        }
+      ]
+    }
+  ]
+}

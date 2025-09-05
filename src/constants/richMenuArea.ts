@@ -30,15 +30,15 @@ export const richMenuAArea: messagingApi.RichMenuArea[] = [
 export const richMenuBArea: messagingApi.RichMenuArea[] = [
   {
     bounds: { x: 0, y: 0, width: 833, height: 843 },
-    action: { type: "message", text: "開始/結束任務" },
+    action: { type: "message", text: "開始/結束課程" },
   },
   {
     bounds: { x: 834, y: 0, width: 833, height: 843 },
-    action: { type: "message", text: "任務記錄" },
+    action: { type: "message", text: "學習記錄" },
   },
   {
     bounds: { x: 1667, y: 0, width: 833, height: 843 },
-    action: { type: "message", text: "我的成果圖卡" },
+    action: { type: "message", text: "學習成果圖卡" },
   },
   {
     bounds: { x: 0, y: 844, width: 833, height: 843 },
@@ -46,7 +46,7 @@ export const richMenuBArea: messagingApi.RichMenuArea[] = [
   },
   {
     bounds: { x: 834, y: 844, width: 833, height: 843 },
-    action: { type: "message", text: "重設任務" },
+    action: { type: "message", text: "我的任務" },
   },
   {
     bounds: { x: 1667, y: 844, width: 833, height: 843 },

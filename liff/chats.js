@@ -75,9 +75,9 @@ function renderChatList(chats, userName) {
   }
 
   if (userName === "自己") {
-    pageTitle.innerText = "我的任務列表";
+    pageTitle.innerText = "我的學習記錄";
   } else {
-    pageTitle.innerText = `${userName} 的任務列表`;
+    pageTitle.innerText = `${userName} 的學習記錄`;
   }
 }
 
@@ -226,7 +226,7 @@ function handleFilterChange() {
     loadingDiv.classList.add("d-none");
     chatListDiv.classList.remove("d-none");
     chatCardsContainer.innerHTML = `<div class="alert alert-warning" role="alert">找不到使用者資訊。</div>`;
-    pageTitle.innerText = "我的任務列表";
+    pageTitle.innerText = "我的學習記錄";
     return;
   }
 
@@ -255,7 +255,7 @@ function handleFilterChange() {
   }
 
   if (!currentUserDoc || currentUserDoc.role !== "parent") {
-    pageTitle.innerText = "我的任務列表";
+    pageTitle.innerText = "我的學習記錄";
   }
 
   targetSelect.addEventListener("change", handleFilterChange);

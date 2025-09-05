@@ -138,7 +138,7 @@ async function main() {
       areas: richMenuBArea,
     },
     richMenuAliasId: "richmenu-alias-b",
-    filename: "richmenu_1754533767864.jpg",
+    filename: "richmenu_1756965662072.jpg",
   });
 
   // Save the rich menu IDs to a JSON file

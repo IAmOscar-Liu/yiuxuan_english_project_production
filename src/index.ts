@@ -2,6 +2,8 @@ import { middleware, webhook } from "@line/bot-sdk";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import path from "path";
+import { corsOptions } from "./constants/corsOptions";
 import { richMenuAArea, richMenuBArea } from "./constants/richMenuArea";
 import { handleConfirmMessage } from "./handler/confirmMessage";
 import {
@@ -19,6 +21,7 @@ import {
   handleLearningQuickReply,
   handleLearningSummaryTargetQuickReply,
 } from "./handler/quickReply";
+import { hasUncompletedTask, taskHandler } from "./handler/taskHandler";
 import { handleTextMessage } from "./handler/textMessage";
 import {
   addSummaryToChat,
@@ -34,6 +37,8 @@ import { isFuzzyMatch } from "./lib/isFuzzyMatch";
 import { OpenAILib } from "./lib/openAI";
 import { limiter } from "./lib/rateLimit";
 import { readRichMenuBId } from "./lib/readRichMenuId";
+import SurveyRoute from "./router/survey";
+import VideoRoute from "./router/video";
 
 // create LINE SDK config from env variables
 const lineMiddleware = middleware({
@@ -45,13 +50,7 @@ console.log(process.env.LINE_CHANNEL_SECRET);
 
 // create Express app
 // about Express itself: https://expressjs.com/
-const app = express();
-
-const corsOptions = {
-  origin: "*", // Your Netlify domain
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true, // Allow sending cookies/authorization headers
-}; // Use the cors middleware
+const app = express(); // Use the cors middleware
 
 app.get("/api/test", (req, res) => {
   res.json({ result: "success" });
@@ -132,6 +131,9 @@ app.post(
   }
 );
 
+app.use("/api/survey", SurveyRoute);
+app.use("/api/video", VideoRoute);
+
 // register a webhook handler with middleware
 // about the middleware, please refer to doc
 app.post("/api/callback", lineMiddleware, (req, res) => {
@@ -195,13 +197,18 @@ function handleEvent(event: webhook.Event) {
         });
       });
     }
-    if (event.message.text === "開始/結束任務") {
+    if (event.message.text === "開始/結束課程") {
       return getUserDocumentById(event.source?.userId ?? "").then((user) => {
         if (!user || !user.isLoggedIn) return Promise.resolve(null);
+        if (hasUncompletedTask(user))
+          return handleTextMessage({
+            replyToken: event.replyToken,
+            text: "您有未完成的任務，請點選主選單『我的任務』查看，完成任務後才可以開始課程喔",
+          });
         if (user.threadId) {
           return handleConfirmMessage({
             replyToken: event.replyToken,
-            text: "是否結束目前任務？",
+            text: "是否結束目前課程？",
             actions: [
               { type: "postback", label: "是", data: "user_cancel_task" },
               { type: "postback", label: "否", data: "user_not_cancel_task" },
@@ -210,7 +217,7 @@ function handleEvent(event: webhook.Event) {
         }
         return handleConfirmMessage({
           replyToken: event.replyToken,
-          text: "是否開始新任務？",
+          text: "是否開始新課程？",
           actions: [
             { type: "postback", label: "是", data: "user_initiate_task" },
             { type: "postback", label: "否", data: "user_not_initiate_task" },
@@ -218,7 +225,7 @@ function handleEvent(event: webhook.Event) {
         });
       });
     }
-    if (event.message.text === "我的成果圖卡")
+    if (event.message.text === "學習成果圖卡")
       return getUserDocumentById(event.source?.userId ?? "").then(
         async (user) => {
           if (!user || !user.isLoggedIn) return Promise.resolve(null);
@@ -240,15 +247,20 @@ function handleEvent(event: webhook.Event) {
           });
         }
       );
-    if (event.message.text === "任務記錄")
+    if (event.message.text === "學習記錄")
       return getUserDocumentById(event.source?.userId ?? "").then((user) => {
         if (!user || !user.isLoggedIn) return Promise.resolve(null);
         return handleLiffButtonMessage({
           replyToken: event.replyToken,
           liffUrl: process.env.LINE_LIFF_URL! + "/chats.html",
-          title: "點此查看您的任務記錄",
+          title: "點此查看您的學習記錄",
           label: "查看",
         });
+      });
+    if (event.message.text === "我的任務")
+      return getUserDocumentById(event.source?.userId ?? "").then((user) => {
+        if (!user || !user.isLoggedIn) return Promise.resolve(null);
+        return taskHandler({ user, replyToken: event.replyToken });
       });
     if (event.message.text === "問題回報")
       return getUserDocumentById(event.source?.userId ?? "").then((user) => {
@@ -292,7 +304,7 @@ function handleEvent(event: webhook.Event) {
             if (isFuzzyMatch(textMessage, "Let's call it a day")) {
               return handleConfirmMessage({
                 replyToken: event.replyToken,
-                text: "是否結束目前任務？",
+                text: "是否結束目前課程？",
                 actions: [
                   { type: "postback", label: "是", data: "user_cancel_task" },
                   {
@@ -360,7 +372,7 @@ function handleEvent(event: webhook.Event) {
         if (user.threadId)
           return handleTextMessage({
             replyToken: event.replyToken,
-            text: "任務已開始",
+            text: "課程已開始",
           });
         return handleLearningQuickReply({
           replyToken: event.replyToken,
@@ -375,7 +387,7 @@ function handleEvent(event: webhook.Event) {
           if (!user.threadId)
             return handleTextMessage({
               replyToken: event.replyToken,
-              text: "任務已結束",
+              text: "課程已結束",
             });
           const chatDoc = await getChatDocumentById(user.threadId, {
             showDebug: true,
@@ -389,7 +401,7 @@ function handleEvent(event: webhook.Event) {
             await OpenAILib.deleteChat(user);
             return handleTextMessage({
               replyToken: event.replyToken,
-              text: "任務結束",
+              text: "課程結束",
             });
           }
           return handleConfirmMessage({
@@ -421,14 +433,14 @@ function handleEvent(event: webhook.Event) {
           if (!user.threadId)
             return handleTextMessage({
               replyToken: event.replyToken,
-              text: "任務已結束",
+              text: "課程已結束",
             });
           if (user.runId || !limiter.canExecute(user.id))
             return handleTextMessage({
               replyToken: event.replyToken,
               text: "系統正在回覆您的訊息，請稍後......",
             });
-          let text = "任務結束";
+          let text = "課程結束";
           if (event.postback.data === "user_require_learning_summary") {
             const openAIResult = await OpenAILib.chat({
               user,
@@ -466,7 +478,7 @@ function handleEvent(event: webhook.Event) {
           if (user.threadId)
             return handleTextMessage({
               replyToken: event.replyToken,
-              text: "任務已開始",
+              text: "課程已開始",
             });
           const openAIResult = await OpenAILib.chat({
             user,
@@ -531,10 +543,14 @@ function handleEvent(event: webhook.Event) {
 
 if (process.env.NODE_ENV === "development") {
   // Set static folder
-  app.use(express.static(__dirname + "/../liff/"));
+  // app.use(express.static(__dirname + "/../liff/"));
+  app.use(express.static(path.join(__dirname, "../liff")));
 
   // Handle SPA
-  app.get(/.*/, (_, res) => res.sendFile(__dirname + "/../liff/index.html"));
+  // app.get(/.*/, (_, res) => res.sendFile(__dirname + "/../liff/index.html"));
+  app.get(/.*/, (_, res) =>
+    res.sendFile(path.join(__dirname, "../liff/index.html"))
+  );
 }
 
 // listen on port

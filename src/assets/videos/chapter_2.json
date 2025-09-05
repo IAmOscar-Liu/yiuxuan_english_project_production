@@ -1,0 +1,47 @@
+{
+  "name": "chapter_2",
+  "title": "Introduction to Past Simple Tense",
+  "description": "This chapter explains the past simple tense and how it is used to describe completed actions in the past.",
+  "questions": [
+    {
+      "question": "Which sentence is in the past simple tense?",
+      "options": {
+        "A": "She eats breakfast every day.",
+        "B": "She is eating breakfast now.",
+        "C": "She ate breakfast yesterday.",
+        "D": "She will eat breakfast tomorrow."
+      },
+      "answer": "C"
+    },
+    {
+      "question": "Which of the following is correct in past simple tense?",
+      "options": {
+        "A": "He go to school yesterday.",
+        "B": "He goes to school yesterday.",
+        "C": "He went to school yesterday.",
+        "D": "He going to school yesterday."
+      },
+      "answer": "C"
+    },
+    {
+      "question": "When do we use the past simple tense?",
+      "options": {
+        "A": "To describe habitual actions.",
+        "B": "To describe actions happening now.",
+        "C": "To describe actions that will happen.",
+        "D": "To describe completed actions in the past."
+      },
+      "answer": "D"
+    },
+    {
+      "question": "Choose the correct sentence in past simple tense.",
+      "options": {
+        "A": "They play football last weekend.",
+        "B": "They played football last weekend.",
+        "C": "They plays football last weekend.",
+        "D": "They are playing football last weekend."
+      },
+      "answer": "B"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "chapter_1",
+  "title": "Introduction to Simple Present Tense",
+  "description": "This chapter introduces the simple present tense, explaining when and how to use it in everyday English sentences.",
+  "questions": [
+    {
+      "question": "Which sentence is in the simple present tense?",
+      "options": {
+        "A": "She is reading a book now.",
+        "B": "He reads books every day.",
+        "C": "They were playing basketball.",
+        "D": "I will go to the park tomorrow."
+      },
+      "answer": "B"
+    },
+    {
+      "question": "Which of the following is correct in simple present tense?",
+      "options": {
+        "A": "He go to school every morning.",
+        "B": "He goes to school every morning.",
+        "C": "He going to school every morning.",
+        "D": "He went to school every morning."
+      },
+      "answer": "B"
+    },
+    {
+      "question": "When do we use the simple present tense?",
+      "options": {
+        "A": "To describe actions happening right now.",
+        "B": "To talk about future plans.",
+        "C": "To describe habitual actions or facts.",
+        "D": "To describe past completed actions."
+      },
+      "answer": "C"
+    },
+    {
+      "question": "Choose the correct sentence in simple present tense.",
+      "options": {
+        "A": "She like apples.",
+        "B": "She liked apples.",
+        "C": "She likes apples.",
+        "D": "She is liking apples."
+      },
+      "answer": "C"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-// Export the initialized admin object
+// Export the initialized admin objects
 export default admin;
 
 export async function getUserDocumentById(
@@ -363,4 +363,73 @@ export async function getChatDocumentsByUserId(
     );
     return [];
   }
+}
+
+export async function completeSurvey({
+  userId,
+  entry,
+}: {
+  userId: string;
+  entry: {
+    name: string; // "profile" | "formal_scale_sections" | others
+    path: string; // Storage object path
+    downloadUrl: string;
+    submittedAt: string; // ISO timestamp
+  };
+}): Promise<void> {
+  const db = admin.firestore();
+  const userRef = db.collection("user").doc(userId);
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+
+    // Get current array (or initialize)
+    const current =
+      snap.exists && Array.isArray(snap.get("completedSurveys"))
+        ? (snap.get("completedSurveys") as any[])
+        : [];
+
+    // Replace by name
+    const updated = [
+      ...current.filter((e) => e && e.name !== entry.name),
+      entry,
+    ];
+
+    // Merge so we don't clobber other fields in the user doc
+    tx.set(userRef, { completedSurveys: updated }, { merge: true });
+  });
+}
+
+export async function completeVideoCourse({
+  userId,
+  entry,
+}: {
+  userId: string;
+  entry: {
+    name: string; // "profile" | "formal_scale_sections" | others
+    submittedAt?: string; // ISO timestamp
+  };
+}): Promise<void> {
+  const db = admin.firestore();
+  const userRef = db.collection("user").doc(userId);
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+
+    // Get current array (or initialize)
+    const current =
+      snap.exists && Array.isArray(snap.get("completedVideos"))
+        ? (snap.get("completedVideos") as any[])
+        : [];
+
+    // Replace by name
+    const newEntry = entry.submittedAt ? entry : { name: entry.name };
+    const updated = [
+      ...current.filter((e) => e && e.name !== entry.name),
+      newEntry,
+    ];
+
+    // Merge so we don't clobber other fields in the user doc
+    tx.set(userRef, { completedVideos: updated }, { merge: true });
+  });
 }

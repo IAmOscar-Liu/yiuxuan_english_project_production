@@ -65,7 +65,7 @@ export function handleLearningQuickReply({
 
   const echo: messagingApi.Message = {
     type: "text",
-    text: `Hello ${user.nickName}，您即將開始今天的任務，在任務開始前，請先確定網路順暢，如需結束，請再次點選主選單『開始/結束任務』，祝您學習愉快！`,
+    text: `Hello ${user.nickName}，您即將開始今天的任務，在任務開始前，請先確定網路順暢，如需結束，請再次點選主選單『開始/結束課程』，祝您學習愉快！`,
   };
   //   // create an echoing text message
   // create an echoing text message

@@ -1,0 +1,47 @@
+{
+  "name": "chapter_3",
+  "title": "Introduction to Future Tense",
+  "description": "This chapter introduces the future tense and how it is used to describe actions that will happen.",
+  "questions": [
+    {
+      "question": "Which sentence is in the future tense?",
+      "options": {
+        "A": "I went to the park yesterday.",
+        "B": "I go to the park every day.",
+        "C": "I will go to the park tomorrow.",
+        "D": "I am going to the park now."
+      },
+      "answer": "C"
+    },
+    {
+      "question": "Which of the following is correct in future tense?",
+      "options": {
+        "A": "She go to school tomorrow.",
+        "B": "She going to school tomorrow.",
+        "C": "She went to school tomorrow.",
+        "D": "She will go to school tomorrow."
+      },
+      "answer": "D"
+    },
+    {
+      "question": "When do we use the future tense?",
+      "options": {
+        "A": "To describe actions that happened.",
+        "B": "To describe actions happening now.",
+        "C": "To describe habitual actions.",
+        "D": "To describe actions that will happen."
+      },
+      "answer": "D"
+    },
+    {
+      "question": "Choose the correct sentence in future tense.",
+      "options": {
+        "A": "They will play football next weekend.",
+        "B": "They played football next weekend.",
+        "C": "They play football next weekend.",
+        "D": "They are playing football next weekend."
+      },
+      "answer": "A"
+    }
+  ]
+}
